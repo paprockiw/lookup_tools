@@ -31,6 +31,16 @@ class LookupBase(object):
                 d.update({key:self.mapped[key]})
         self._assign_attr(attr_name, d)
 
+    def write(self, title, fieldnames=None):
+        if fieldnames == None:
+            field_key = tuple(self.mapped.keys()[0])
+            fieldnames = self.mapped[field_key].keys()
+        with open(title, 'wb') as output:
+            writer = csv.DictWriter(output, fieldnames)
+            writer.writeheader()
+            for row in self.mapped.values():
+                writer.writerow(row)
+
 class Result(LookupBase):
     def __init__(self, d):
         self.mapped = d
@@ -69,4 +79,7 @@ a = LookupMap('test1.csv', 'animal', 'number')
 b = LookupMap('test2.csv', 'creature', 'num')
 
 a.match(b, 'b_match')
-print a.b_match.mapped
+for row in a.b_match.mapped:
+    print row, a.b_match.mapped[row]
+
+a.b_match.write('bmatch.csv')
