@@ -74,12 +74,12 @@ class LookupMap(LookupBase):
     def loss_count(self):
         return len(self.loss)
 
+if __name__ == '__main__':
+    a = LookupMap('test1.csv', 'animal', 'number')
+    b = LookupMap('test2.csv', 'creature', 'num')
 
-a = LookupMap('test1.csv', 'animal', 'number')
-b = LookupMap('test2.csv', 'creature', 'num')
+    a.match(b, 'b_match')
+    for row in a.b_match.mapped:
+        print row, a.b_match.mapped[row]
 
-a.match(b, 'b_match')
-for row in a.b_match.mapped:
-    print row, a.b_match.mapped[row]
-
-a.b_match.write('bmatch.csv')
+    a.b_match.write('bmatch.csv')
