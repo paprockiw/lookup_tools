@@ -6,16 +6,26 @@ class LookupBase(object):
         self.mapped = {}
 
     def _comparable(self, other):
+        '''Helper function for building comparision methods in this class. It 
+        checks to see if the object that is to be compared to the base object 
+        is an instance of the same class, and has an equal number of fields in 
+        its keys for comparison.'''
         assert isinstance(other, self.__class__), \
                 'Argument must be instance of %s.' % self.__class__
         assert len(self.key_fields) == len(other.key_fields), \
                 'Other object must have same number of key_fields'
 
     def _assign_attr(self, name, d):
+        '''Helper function for assigning new attribute to object.'''
         r = Result(d)
         setattr(self, name, r)
 
     def match(self, other, attr_name): 
+        '''Takes another lookup object and an attribute name as input. Then it 
+        takes each item stored in the 'mapped' attribute on this object and 
+        checks to see if that item's key is present in the 'mapped' attribute 
+        of the other object. If the key is present in the other object, the 
+        record from the other object is added to '''
         self._comparable(other)
         d = {}
         for key in self.mapped:
@@ -24,14 +34,21 @@ class LookupBase(object):
         self._assign_attr(attr_name, d)
 
     def diff(self, other, attr_name):
+        '''The opposite of the match method, this takes another lookup object 
+        and and an attribute name. It goes through each item in this object, 
+        and looks for each item's key in the other object. If there is no 
+        match, the item on this object is saved to the results, which are 
+        stored on the attribute specified as an argument. '''
         self._comparable(other)
         d = {}
         for key in self.mapped:
             if key not in other.mapped:
                 d.update({key:self.mapped[key]})
         self._assign_attr(attr_name, d)
-
     def write(self, title, fieldnames=None):
+        ''' Takes a title as input and writes the values stored in the 
+        'mapped' attribute to a new csv file with the title specified as an 
+        argument.'''
         if fieldnames == None:
             field_key = tuple(self.mapped.keys()[0])
             fieldnames = self.mapped[field_key].keys()
@@ -42,11 +59,19 @@ class LookupBase(object):
                 writer.writerow(row)
 
 class Result(LookupBase):
+    '''Object for storing results of comparison methods such as match or diff. 
+    This can be used for further comparisons since it inherits from the base 
+    object. '''
     def __init__(self, d):
         self.mapped = d
         self.key_fields = d[d.keys()[0]].keys()
 
 class LookupMap(LookupBase):
+    '''Object used for taking a csv file, and mapping its contents based on 
+    the column names from the csv file. Each row of the csv file is entered 
+    into a dictionary that has a tuple of the data in the specified rows as a 
+    key, and the row itself (as a dictionary) as the associated value. This is 
+    used for comparing data between this and other similar objects. '''
     def __init__(self, filename, *args):
         #super(LookupMap, self)
         self.mapped = {}
