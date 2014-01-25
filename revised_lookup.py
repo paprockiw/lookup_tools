@@ -33,6 +33,25 @@ class LookupBase(object):
                 d.update({key:other.mapped[key]})
         self._assign_attr(attr_name, d)
 
+    def merge(self, other, attr_name, *merge_fields):
+        '''Works like a merge, but takes an arbitrary number of args that are 
+        the names of fields on the object being passed to this function. When 
+        a match is found between this and the other object, the data in the 
+        fields on the other object are merged into the matching rows on this 
+        object. The results are stored on an attribute you specify, as with 
+        the match method.'''
+        self._comparable(other)
+        d = {}
+        for key in self.mapped:
+            if key in other.mapped:
+                field_values = [other.mapped[key][field] for field in merge_fields] # get values for merge_fields
+                merge_data = zip(merge_fields, field_values) # zip into list of tuples
+                new_items = {field:value for field, value in merge_data} # make dict to merge
+                records = self.mapped[key].copy() 
+                records.update(new_items)
+                d.update({key:records})
+        self._assign_attr(attr_name, d)
+
     def diff(self, other, attr_name):
         '''The opposite of the match method, this takes another lookup object 
         and and an attribute name. It goes through each item in this object, 
@@ -45,6 +64,7 @@ class LookupBase(object):
             if key not in other.mapped:
                 d.update({key:self.mapped[key]})
         self._assign_attr(attr_name, d)
+
     def write(self, title, fieldnames=None):
         ''' Takes a title as input and writes the values stored in the 
         'mapped' attribute to a new csv file with the title specified as an 
