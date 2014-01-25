@@ -65,13 +65,11 @@ class LookupBase(object):
                 d.update({key:self.mapped[key]})
         self._assign_attr(attr_name, d)
 
-    def write(self, title, fieldnames=None):
+    def write(self, title):
         ''' Takes a title as input and writes the values stored in the 
         'mapped' attribute to a new csv file with the title specified as an 
         argument.'''
-        if fieldnames == None:
-            field_key = tuple(self.mapped.keys()[0])
-            fieldnames = self.mapped[field_key].keys()
+        fieldnames = self.key_fields
         with open(title, 'wb') as output:
             writer = csv.DictWriter(output, fieldnames)
             writer.writeheader()
@@ -123,8 +121,12 @@ if __name__ == '__main__':
     a = LookupMap('test1.csv', 'animal', 'number')
     b = LookupMap('test2.csv', 'creature', 'num')
 
-    a.match(b, 'b_match')
-    for row in a.b_match.mapped:
-        print row, a.b_match.mapped[row]
+#    a.match(b, 'b_match')
+#    for row in a.b_match.mapped:
+#        print row, a.b_match.mapped[row]
+#
+#    a.b_match.write('bmatch.csv')
 
-    a.b_match.write('bmatch.csv')
+    a.merge(b, 'b_merge', 'chemical', 'num')
+
+    a.b_merge.write('merge_test.csv')
