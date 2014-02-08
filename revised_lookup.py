@@ -44,9 +44,10 @@ class LookupBase(object):
         d = {}
         for key in self.mapped:
             if key in other.mapped:
-                field_values = [other.mapped[key][field] for field in merge_fields] # get values for merge_fields
-                merge_data = zip(merge_fields, field_values) # zip into list of tuples
-                new_items = {field:value for field, value in merge_data} # make dict to merge
+                # get values to map to merge data fields
+                field_values = [other.mapped[key][field] for field in merge_fields] 
+                # make dict to merge
+                new_items = dict(zip(merge_fields, field_values))
                 records = self.mapped[key].copy() 
                 records.update(new_items)
                 d.update({key:records})
